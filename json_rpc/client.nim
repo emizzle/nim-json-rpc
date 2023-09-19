@@ -26,7 +26,9 @@ proc getNextId*(client: RpcClient): ClientId =
   client.lastId
 
 proc rpcCallNode*(path: string, params: JsonNode, id: ClientId): JsonNode =
-  %{"jsonrpc": %"2.0", "method": %path, "params": params, "id": %id}
+  let res = %{"jsonrpc": %"2.0", "method": %path, "params": params, "id": %id}
+  echo "[JSON RPC CLIENT, rpcCallNode]: ", $res
+  res
 
 method call*(client: RpcClient, name: string,
              params: JsonNode): Future[Response] {.
@@ -43,6 +45,7 @@ template `or`(a: JsonNode, b: typed): JsonNode =
 proc processMessage*(self: RpcClient, line: string) =
   # Note: this doesn't use any transport code so doesn't need to be
   # differentiated.
+  echo "[JSON RPC CLIENT, processMessage]: ", line
   let node = try: parseJson(line)
   except CatchableError as exc: raise exc
   # TODO https://github.com/status-im/nimbus-eth2/issues/2430
